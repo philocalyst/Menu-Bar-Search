@@ -6,7 +6,7 @@
 //  Copyright © 2017 Benzi Ahamed. All rights reserved.
 //
 
-import ApplicationServices
+@preconcurrency import ApplicationServices
 import Foundation
 
 let virtualKeys = [

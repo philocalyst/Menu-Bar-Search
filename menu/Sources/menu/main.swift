@@ -140,7 +140,7 @@ if args.cachingEnabled,
 // filter menu items and render result
 
 // func r(_ menu: MenuItem) -> () {
-func render(_ menu: MenuItem) {
+@MainActor func render(_ menu: MenuItem) {
     let apple = menu.appleMenuItem
     a.add(
         .with {
