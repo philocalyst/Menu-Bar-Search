@@ -29,17 +29,11 @@ class MenuBar {
         clickMenu(menu: menuBar, pathIndices: pathIndices, currentIndex: 0)
     }
 
-    func load(_ options: MenuGetterOptions) -> [MenuItem] {
+    func load(_ options: MenuGetterOptions) async -> [MenuItem] {
         guard let menuBar = self.menuBar else {
             return []
         }
-        return MenuGetter.loadSync(menuBar: menuBar, options: options)
+        return await MenuGetter().load(menuBar: menuBar, options: options)
     }
 
-    func loadAsync(_ options: MenuGetterOptions) -> [MenuItem] {
-        guard let menuBar = self.menuBar else {
-            return []
-        }
-        return MenuGetter.loadAsync(menuBar: menuBar, options: options)
-    }
 }

@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "menu",
+    platforms: [.macOS(.v10_15)],
     dependencies: [
         .package(
             url: "https://github.com/apple/swift-protobuf.git",

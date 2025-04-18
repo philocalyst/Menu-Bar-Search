@@ -6,8 +6,14 @@
 //  Copyright © 2017 Benzi Ahamed. All rights reserved.
 //
 
-@preconcurrency import ApplicationServices
+import ApplicationServices
 import Foundation
+
+#if swift(>=5.5) && canImport(_Concurrency)
+    // SAFETY: A promise, from us to the compiler, to never mututate from mulitple threads.
+    extension AXUIElement: @unchecked Sendable {}
+    extension MenuGetterOptions: @unchecked Sendable {}
+#endif
 
 let virtualKeys = [
     0x24: "↩",  // kVK_Return
@@ -409,171 +415,61 @@ struct MenuGetterOptions {
     }
 }
 
-enum MenuGetter {
-    static func loadSync(menuBar: AXUIElement, options: MenuGetterOptions) -> [MenuItem] {
-        var menuItems = [MenuItem]()
+actor MenuGetter {
+    /// Walks the menu bar *concurrently*, yet safely aggregates into a single array.
+    func load(
+        menuBar: AXUIElement,
+        options: MenuGetterOptions
+    ) async -> [MenuItem] {
+        // grab the top‐level bar entries
         guard
-            let menuBarItems = getAttribute(element: menuBar, name: kAXChildrenAttribute)
-                as? [AXUIElement],
-            menuBarItems.count > 0
-        else { return [] }
-        for i in menuBarItems.indices {
-            let item = menuBarItems[i]
-            guard let name = getAttribute(element: item, name: kAXTitleAttribute) as? String else {
-                continue
-            }
-
-            if !options.appFilter.showAppleMenu, name == "Apple" { continue }
-            if options.canIgnorePath(path: [name]) { continue }
-
-            if let menuRoot = options.specificMenuRoot, name.lowercased() != menuRoot.lowercased() {
-                continue
-            }
-            guard
-                let children = getAttribute(element: item, name: kAXChildrenAttribute)
-                    as? [AXUIElement],
-                children.count > 0
-            else { continue }
-            getMenuItems(
-                forElement: children[0],
-                menuItems: &menuItems,
-                path: [name],
-                pathIndices: "\(i)",
-                depth: 1,
-                options: options
-            )
-        }
-        return menuItems
-    }
-
-    static func loadAsync(menuBar: AXUIElement, options: MenuGetterOptions) -> [MenuItem] {
-        var menuItems = [MenuItem]()
-        let q: DispatchQueue
-        if #available(macOS 10.10, *) {
-            q = DispatchQueue(
-                label: "folded-paper.menu-bar", qos: .userInteractive, attributes: .concurrent)
-        } else {
-            q = DispatchQueue(label: "folded-paper.menu-bar", attributes: .concurrent)
-        }
-        let group = DispatchGroup()
-        guard
-            let menuBarItems = getAttribute(element: menuBar, name: kAXChildrenAttribute)
-                as? [AXUIElement],
-            menuBarItems.count > 0
+            let bars = getAttribute(element: menuBar, name: kAXChildrenAttribute)
+                as? [AXUIElement], !bars.isEmpty
         else { return [] }
 
-        for i in menuBarItems.indices {
-            let item = menuBarItems[i]
-            guard let name = getAttribute(element: item, name: kAXTitleAttribute) as? String else {
-                continue
-            }
+        return await withTaskGroup(of: [MenuItem].self) { group in
+            for (i, barItem) in bars.enumerated() {
+                // pull out its title
+                guard
+                    let name = getAttribute(element: barItem, name: kAXTitleAttribute)
+                        as? String
+                else { continue }
+                // skip Apple menu?
+                if !options.appFilter.showAppleMenu, name == "Apple" { continue }
+                if options.canIgnorePath(path: [name]) { continue }
+                if let only = options.specificMenuRoot,
+                    name.lowercased() != only.lowercased()
+                {
+                    continue
+                }
 
-            if !options.appFilter.showAppleMenu, name == "Apple" { continue }
-            if options.canIgnorePath(path: [name]) { continue }
+                // child must have a submenu
+                guard
+                    let children = getAttribute(element: barItem, name: kAXChildrenAttribute)
+                        as? [AXUIElement], !children.isEmpty
+                else { continue }
 
-            if let menuRoot = options.specificMenuRoot, name.lowercased() != menuRoot.lowercased() {
-                continue
-            }
-            guard
-                let children = getAttribute(element: item, name: kAXChildrenAttribute)
-                    as? [AXUIElement],
-                children.count > 0
-            else { continue }
-
-            q.async(group: group) {
-                var items = [MenuItem]()
-                getMenuItems(
-                    forElement: children[0],
-                    menuItems: &items,
-                    path: [name],
-                    pathIndices: "\(i)",
-                    depth: 1,
-                    options: options
-                )
-                q.async(group: group, flags: .barrier) {
-                    menuItems.append(contentsOf: items)
+                // spin off a task per top‐level bar item
+                group.addTask {
+                    var items = [MenuItem]()
+                    getMenuItems(
+                        forElement: children[0],
+                        menuItems: &items,
+                        path: [name],
+                        pathIndices: "\(i)",
+                        depth: 1,
+                        options: options
+                    )
+                    return items
                 }
             }
+
+            // collect them all
+            var all = [MenuItem]()
+            for await chunk in group {
+                all.append(contentsOf: chunk)
+            }
+            return all
         }
-        _ = group.wait(timeout: .distantFuture)
-        return menuItems
     }
 }
-
-// func buildMenuNodes(forElement element: AXUIElement, depth: Int = 0, maxDepth: Int = 10, maxChildren: Int = 20) -> [MenuNode] {
-//    guard let children = getAttribute(element: element, name: kAXChildrenAttribute) as? [AXUIElement], children.count > 0 else { return [] }
-//    var processed = 0
-//    var nodes = [MenuNode]()
-//    for i in children.indices {
-//
-//        let child = children[i]
-//        guard let enabled = getAttribute(element: child, name: kAXEnabledAttribute) as? Bool, enabled else { continue }
-//        guard let name = getAttribute(element: child, name: kAXTitleAttribute) as? String else { continue }
-//        guard !name.isEmpty else { continue }
-//        guard let children = getAttribute(element: child, name: kAXChildrenAttribute) as? [AXUIElement] else { continue }
-//
-//        var node = MenuNode()
-//        node.name = name
-//        if children.count == 1 {
-//            // sub-menu item, scan children
-//            node.children = buildMenuNodes(forElement: children[0], depth: depth + 1, maxDepth: maxDepth, maxChildren: maxChildren)
-//        }
-//        else {
-//            // not a sub menu, if we have a path to this item
-//            let cmd = getAttribute(element: child, name: kAXMenuItemCmdCharAttribute) as? String
-//            var modifiers: Int = 0
-//            var virtualKey: Int = 0
-//            if let m = getAttribute(element: child, name: kAXMenuItemCmdModifiersAttribute) {
-//                CFNumberGetValue(m as! CFNumber, CFNumberType.longType, &modifiers)
-//            }
-//            if let v = getAttribute(element: child, name: kAXMenuItemCmdVirtualKeyAttribute) {
-//                CFNumberGetValue(v as! CFNumber, CFNumberType.longType, &virtualKey)
-//            }
-//            node.shortcut = getShortcut(cmd, modifiers, virtualKey)
-//        }
-//
-//        nodes.append(node)
-//
-//        processed += 1
-//        if processed > maxChildren { break }
-//    }
-//    return nodes
-// }
-
-// func buildMenuItems(nodes: [MenuNode]) -> [MenuItem] {
-//    var items = [MenuItem]()
-//    var path = [String]()
-//    var indexPath = [Int]()
-//    func parseNode(_ node: MenuNode, path: inout [String], pathIndices:String = "",  i: Int, items: inout [MenuItem]) {
-//        let pathIndices = pathIndices.isEmpty ? "\(i)" : pathIndices + ",\(i)"
-//        if node.children.isEmpty {
-//            var item = MenuItem()
-//            item.path = path
-//            item.shortcut = node.shortcut
-//            item.pathIndices = pathIndices
-//            items.append(item)
-//        }
-//        else {
-//            var i = 0
-//            let end = node.children.endIndex
-//            while i < end {
-//                let node = node.children[i]
-//                path.append(node.name)
-//                parseNode(node, path: &path, pathIndices: pathIndices, i: i, items: &items)
-//                _ = path.removeLast()
-//                i += 1
-//            }
-//        }
-//    }
-//    var i = 0
-//    let end = nodes.endIndex
-//    while i < end {
-//        let node = nodes[i]
-//        path.append(node.name)
-//        parseNode(node, path: &path, i: i, items: &items)
-//        _ = path.removeLast()
-//        i += 1
-//    }
-//    return items
-// }
-//
