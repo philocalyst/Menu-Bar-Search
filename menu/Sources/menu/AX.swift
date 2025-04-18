@@ -431,7 +431,8 @@ enum MenuGetter {
             }
             guard
                 let children = getAttribute(element: item, name: kAXChildrenAttribute)
-                    as? [AXUIElement]
+                    as? [AXUIElement],
+                children.count > 0
             else { continue }
             getMenuItems(
                 forElement: children[0],
@@ -475,7 +476,8 @@ enum MenuGetter {
             }
             guard
                 let children = getAttribute(element: item, name: kAXChildrenAttribute)
-                    as? [AXUIElement]
+                    as? [AXUIElement],
+                children.count > 0
             else { continue }
 
             q.async(group: group) {
