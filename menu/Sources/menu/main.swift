@@ -221,3 +221,5 @@ struct MenuSearch {
         print(a.resultsJson)
     }
 }
+
+await MenuSearch.main()
