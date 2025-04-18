@@ -1,6 +1,7 @@
 import ArgumentParser
 import Foundation
 
+@main
 struct Menu: AsyncParsableCommand {
 	static let configuration = CommandConfiguration(
 		abstract: "Search & action macOS app menu‑bar items via Alfred"
