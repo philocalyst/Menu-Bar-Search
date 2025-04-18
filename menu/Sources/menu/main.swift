@@ -10,11 +10,10 @@ import SwiftProtobuf
 
 @MainActor
 struct MenuSearch {
-    static func main() async {
+    static func run(with: RuntimeArgs) async {
         // Prepare Alfred workflow directories
         Alfred.preparePaths()
 
-        // Parse runtime arguments
         let args = RuntimeArgs()
         args.parse()
 
@@ -222,4 +221,4 @@ struct MenuSearch {
     }
 }
 
-await MenuSearch.main()
+Menu.main()
