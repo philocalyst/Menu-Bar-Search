@@ -10,12 +10,9 @@ import SwiftProtobuf
 
 @MainActor
 struct MenuSearch {
-    static func run(with: RuntimeArgs) async {
+    static func run(with args: RuntimeArgs) async {
         // Prepare Alfred workflow directories
         Alfred.preparePaths()
-
-        let args = RuntimeArgs()
-        args.parse()
 
         // Determine target application
         let targetApp: NSRunningApplication? =
