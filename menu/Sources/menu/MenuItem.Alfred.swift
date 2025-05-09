@@ -9,25 +9,25 @@
 import Foundation
 
 extension MenuItem {
-    var arg: String {
-        return pathIndices
-    }
+  var arg: String {
+    return pathIndices
+  }
 
-    var uid: String {
-        return path.joined(separator: ">")
-    }
+  var uid: String {
+    return path.joined(separator: ">")
+  }
 
-    var appleMenuItem: Bool {
-        return path[0] == "Apple"
-    }
+  var appleMenuItem: Bool {
+    return path[0] == "Apple"
+  }
 
-    var subtitle: String {
-        var p = path
-        p.removeLast()
-        return p.joined(separator: " > ")
-    }
+  var subtitle: String {
+    var p = path
+    p.removeLast()
+    return p.joined(separator: " > ")
+  }
 
-    var title: String {
-        return path.last!
-    }
+  var title: String {
+    return path.last!
+  }
 }
