@@ -11,7 +11,7 @@ import Foundation
 
 #if swift(>=5.5) && canImport(_Concurrency)
   // SAFETY: A promise, from us to the compiler, to never mututate from mulitple threads.
-  extension AXUIElement: @unchecked Sendable {}
+  extension AXUIElement: @retroactive @unchecked Sendable {}
 
   extension MenuGetterOptions: @unchecked Sendable {}
 #endif
