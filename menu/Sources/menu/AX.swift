@@ -429,32 +429,39 @@ actor MenuGetter {
     else { return [] }
 
     return await withTaskGroup(of: [MenuItem].self) { group in
-      for (i, barItem) in bars.enumerated() {
-        // pull out its title
-        guard
-          let name = getAttribute(element: barItem, name: kAXTitleAttribute)
-            as? String
-        else { continue }
-        // skip Apple menu?
-        if !options.appFilter.showAppleMenu, name == "Apple" { continue }
-        if options.canIgnorePath(path: [name]) { continue }
-        if let only = options.specificMenuRoot,
-          name.lowercased() != only.lowercased()
-        {
-          continue
+      // Pre-filter bar items before creating tasks
+      let filteredBars = bars.enumerated().compactMap {
+        (i, barItem) -> (Int, AXUIElement, String)? in
+        // Extract title once
+        guard let name = getAttribute(element: barItem, name: kAXTitleAttribute) as? String else {
+          return nil
         }
 
-        // child must have a submenu
+        // Apply all filters at once
+        if (!options.appFilter.showAppleMenu && name == "Apple")
+          || options.canIgnorePath(path: [name])
+          || (options.specificMenuRoot != nil
+            && name.lowercased() != options.specificMenuRoot!.lowercased())
+        {
+          return nil
+        }
+
+        // Verify submenu exists
         guard
           let children = getAttribute(element: barItem, name: kAXChildrenAttribute)
-            as? [AXUIElement], !children.isEmpty
-        else { continue }
+            as? [AXUIElement],
+          !children.isEmpty
+        else { return nil }
 
-        // spin off a task per top‐level bar item
+        return (i, children[0], name)
+      }
+
+      // Create tasks only for filtered items
+      for (i, submenu, name) in filteredBars {
         group.addTask {
           var items = [MenuItem]()
           getMenuItems(
-            forElement: children[0],
+            forElement: submenu,
             menuItems: &items,
             path: [name],
             pathIndices: "\(i)",
@@ -465,8 +472,8 @@ actor MenuGetter {
         }
       }
 
-      // collect them all
       var all = [MenuItem]()
+      all.reserveCapacity(10)  // Estimating this is the average number of menu bar elements
       for await chunk in group {
         all.append(contentsOf: chunk)
       }
