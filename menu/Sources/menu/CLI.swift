@@ -130,7 +130,7 @@ struct Menu: AsyncParsableCommand {
       return
     }
 
-    // build old RuntimeArgs to interoperate
+    // Building the options struct
     let runtime = RuntimeArgs()
     runtime.query = query ?? ""
     runtime.pid = Int32(pid ?? -1)
@@ -138,7 +138,6 @@ struct Menu: AsyncParsableCommand {
     runtime.options.maxChildren = maxChildren
     runtime.reorderAppleMenuToLast = reorderAppleMenuToLast
     runtime.learning = learning
-    runtime.loadAsync = async
     if let t = cache {
       runtime.cachingEnabled = true
       runtime.cacheTimeout = t
@@ -152,7 +151,6 @@ struct Menu: AsyncParsableCommand {
       runtime.clickIndices = IndexParser.parse(clickJSON)
     }
 
-    // call your existing async main logic
     await MenuSearch.run(with: runtime)
   }
 }
