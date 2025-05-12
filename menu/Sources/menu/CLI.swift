@@ -15,7 +15,7 @@ struct Menu: AsyncParsableCommand {
   @Option(
     name: .long,
     help: "PID of the target application (default: frontmost).")
-  var pid: Int?
+  var pid: Int32?
 
   @Option(name: .long, help: "Max menu depth (default: 10).")
   var maxDepth: Int = 10
@@ -133,7 +133,7 @@ struct Menu: AsyncParsableCommand {
     // Building the options struct
     let runtime = RuntimeArgs()
     runtime.query = query ?? ""
-    runtime.pid = Int32(pid ?? -1)
+    runtime.pid = pid ?? -1
     runtime.options.maxDepth = maxDepth
     runtime.options.maxChildren = maxChildren
     runtime.reorderAppleMenuToLast = reorderAppleMenuToLast
