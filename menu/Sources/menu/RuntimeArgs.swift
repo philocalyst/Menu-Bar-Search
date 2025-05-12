@@ -13,7 +13,6 @@ class RuntimeArgs {
   var reorderAppleMenuToLast = true
   var learning = false
   var clickIndices: [Int]?
-  var loadAsync = false
   var cachingEnabled = false
   var cacheTimeout = 0.0
 
