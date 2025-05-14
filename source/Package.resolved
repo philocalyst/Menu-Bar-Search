@@ -1,6 +1,15 @@
 {
-  "originHash" : "ed8ae395556a45fff7453ae2949990e19ebe56647ab6c6c3762114a8c226f8c5",
+  "originHash" : "dd17e49f36ebadf4b1645d9321fabc5f54789f18a3aa726e42fa2cc9708b7896",
   "pins" : [
+    {
+      "identity" : "fuse-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/krisk/fuse-swift.git",
+      "state" : {
+        "revision" : "26ba868691b2d8b7bf2b1322951eb591be70ccca",
+        "version" : "1.4.0"
+      }
+    },
     {
       "identity" : "swift-argument-parser",
       "kind" : "remoteSourceControl",

@@ -13,6 +13,11 @@ let package = Package(
       url: "https://github.com/apple/swift-argument-parser.git",
       from: "1.5.0"
     ),
+    .package(
+      url: "https://github.com/krisk/fuse-swift.git",
+      from: "1.4.0"
+    ),
+
   ],
   targets: [
     .executableTarget(
@@ -20,6 +25,7 @@ let package = Package(
       dependencies: [
         .product(name: "SwiftProtobuf", package: "swift-protobuf"),
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
+        .product(name: "Fuse", package: "fuse-swift"),
       ],
       linkerSettings: [
         .unsafeFlags([
