@@ -74,7 +74,7 @@
 				<key>escaping</key>
 				<integer>4</integer>
 				<key>keyword</key>
-				<string>mu</string>
+				<string>{var:SEARCH_KEYWORD}</string>
 				<key>queuedelaycustom</key>
 				<integer>3</integer>
 				<key>queuedelayimmediatelyinitially</key>
@@ -122,7 +122,7 @@ cmd+=(--query "{query}")
 				<key>type</key>
 				<integer>0</integer>
 				<key>withspace</key>
-				<true/>
+				<false/>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.input.scriptfilter</string>
@@ -130,6 +130,29 @@ cmd+=(--query "{query}")
 			<string>25DA0D72-264A-4CD8-9A6A-9FFD4B652DF1</string>
 			<key>version</key>
 			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>4</integer>
+				<key>script</key>
+				<string>./menu --click "{query}"</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>C8DFF277-2C74-48D3-B685-F304268DF007</string>
+			<key>version</key>
+			<integer>2</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -163,29 +186,6 @@ cmd+=(--query "{query}")
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>concurrently</key>
-				<false/>
-				<key>escaping</key>
-				<integer>4</integer>
-				<key>script</key>
-				<string>./menu --click "{query}"</string>
-				<key>scriptargtype</key>
-				<integer>0</integer>
-				<key>scriptfile</key>
-				<string></string>
-				<key>type</key>
-				<integer>0</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.script</string>
-			<key>uid</key>
-			<string>C8DFF277-2C74-48D3-B685-F304268DF007</string>
-			<key>version</key>
-			<integer>2</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
 				<key>alfredfiltersresults</key>
 				<false/>
 				<key>alfredfiltersresultsmatchmode</key>
@@ -199,7 +199,7 @@ cmd+=(--query "{query}")
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>keyword</key>
-				<string>ms</string>
+				<string>{var:SETTINGS_KEYWORD}</string>
 				<key>queuedelaycustom</key>
 				<integer>3</integer>
 				<key>queuedelayimmediatelyinitially</key>
@@ -257,53 +257,61 @@ cmd+=(--query "{query}")
 		</dict>
 	</array>
 	<key>readme</key>
-	<string># Menu Bar Search
+	<string># Menu Bar Search Alfred Workflow
 
-Quickly search menu bar items of the frontmost application.
+Search and action macOS app menu-bar items via Alfred
 
-Based on modifications done by ctwise, which is based almost entirely on the menu bar search workflow by Jeroen van der Neut.
+## Setup
+
+- Enable “Accessibility” for Alfred in  
+  **System Preferences → Security &amp; Privacy → Privacy → Accessibility**.  
+- Open the workflow’s Configuration (⌘+, on the workflow) to customize:
+  - **Maximum items per menu**  
+  - **Maximum sub-menu depth**  
+  - **Show disabled menu items**  
+  - **Include Apple  menu items**  
+  - **Refresh cache on every new search**  
+- For per-app overrides, type `ms` in Alfred to open the **Settings** folder, then edit `settings.txt` according to the sample.
 
 ## Usage
 
-Type `m` in Alfred to list menu bar items for the frontmost application.
-You can filter menu items by name or do a fuzzy search.
+### Search Menu Items (`mu`)
 
-E.g.
+Type `mu` followed by your query to list menu-bar items of the frontmost application.  
+Supports fuzzy matching or exact prefixes.
 
-- `m new tab` will match the menu item **New Tab**.
-- `m cw` will match the menu item **Close Window**.
+![Alfred search for mu](Assets/search.png)
 
-## Changelog
+Example: `mu cw` will match **Close Window** via fuzzy search
 
-- **1.0** - Initial Release
-- **1.1** - Added Fuzzy Text Matching for Menus
-  If you have a menu item `New Tab`, then typing `m nt` in Alfred will match `New Tab`, since `n` and `t` match the first letters of the menu text.
+![Alfred fuzzy search for cw](Assets/results.png)
 
-- **1.1.1** - Changed run behavior to terminate previous script, which makes the experience slightly faster.
-- **1.2** - Completely native menu clicking; removed reliance on AppleScript.
-  - **1.2.1** - Performance improvements when generating menus using direct JSON encoding.
-  - **1.2.2** - More performance improvements while filtering menu items.
-- **1.3** - Added `-async` flag to allow threaded scanning and populating of menus.
-- **1.4** - Added `-cache` setting to enable menu result caching and also set a timeout for cache invalidation.
-  - **1.4.1** - Invalidate cache (if present) after actioning a menu press.
-  - **1.4.2** - Slide the cache invalidation window forward in case we get invalidated by a near miss.
-  - **1.4.3** - Speed improvements to caching, text search, and fuzzy matching.
-  - **1.4.4** - Added `-no-apple-menu` flag that will skip the Apple menu items.
-  - **1.4.5** - Tuned fuzzy matcher, allows non-continuous anchor token search.
-- **1.5** - Faster caching using protocol buffers.
-  - **1.5.1** - Reduced file creation for cache storage.
-  - **1.5.2** - Better support for command-line apps that create menubar-owning applications.
-  - **1.5.3** - Protocol buffer everything - microscopic speed improvements, but hey...
+* &lt;kbd&gt;↩&lt;/kbd&gt; Click the selected menu item
 
-  - **1.5.4** - Added various environment variables to fine-tune menu listings.
-  - **1.5.5** - Tweaked ranking of search results for better menu listings.
+### Browse Folders (`ms`)
 
-- **1.6** - Added per-app customization settings, `-show-apple-menu` flag.
-- **1.7** - Universal build for M1 and Intel.
-- **1.8** - Fixed universal build.
-- **1.9** - Changed to user configuration and signed executable (exported using Alfred 5).
-- **2.0** - Alfred workflow gallery support! With added shortcut search, brand-new configuration settings, tweaks to caching behavior, and brand-new icons.
-- **2.1** - Updated to Swift concurrency and migrated argument parsing logic to the Swift Argument Parser Library. NEW MAINTAINER: Philocalyst</string>
+Type `ms` to open your workflow’s **Settings** and **Cache** folders:
+
+![Alfred show folders](Workflow/images/about/ms.png)
+
+* &lt;kbd&gt;↩&lt;/kbd&gt; Open folder
+
+## Caching
+
+On first run the workflow builds a cache of menu items (this may take a few seconds).  
+Subsequent searches are instantaneous. Control cache behavior in the Workflow Configuration or via your per-app `settings.txt`.
+
+## Troubleshooting
+
+If you see  
+&gt; Assistive applications are not enabled in System Preferences  
+  
+ensure Alfred is granted Accessibility in System Preferences → Security &amp; Privacy → Privacy → Accessibility.
+
+## Contribute &amp; Support
+
+Report bugs, request features or contribute on GitHub:  
+https://github.com/philocalyst/Menu-Bar-Search</string>
 	<key>uidata</key>
 	<dict>
 		<key>25DA0D72-264A-4CD8-9A6A-9FFD4B652DF1</key>
@@ -360,6 +368,48 @@ I personally set it to double-tapping the ⌘ (command) key.</string>
 	</dict>
 	<key>userconfigurationconfig</key>
 	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>default</key>
+				<string>mu</string>
+				<key>placeholder</key>
+				<string>Enter here...</string>
+				<key>required</key>
+				<false/>
+				<key>trim</key>
+				<true/>
+			</dict>
+			<key>description</key>
+			<string></string>
+			<key>label</key>
+			<string>The workflow's search keyword</string>
+			<key>type</key>
+			<string>textfield</string>
+			<key>variable</key>
+			<string>SEARCH_KEYWORD</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>default</key>
+				<string>ms</string>
+				<key>placeholder</key>
+				<string>Enter here...</string>
+				<key>required</key>
+				<false/>
+				<key>trim</key>
+				<true/>
+			</dict>
+			<key>description</key>
+			<string></string>
+			<key>label</key>
+			<string>The workflow's settings keyword</string>
+			<key>type</key>
+			<string>textfield</string>
+			<key>variable</key>
+			<string>SETTINGS_KEYWORD</string>
+		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
@@ -483,7 +533,7 @@ Recommended to keep this enabled always.</string>
 		</dict>
 	</array>
 	<key>version</key>
-	<string>2.1</string>
+	<string>1.3.0</string>
 	<key>webaddress</key>
 	<string>https://github.com/philocalyst/Menu-Bar-Search</string>
 </dict>
