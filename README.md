@@ -31,7 +31,7 @@ Example: `mu cw` will match **Close Window** via fuzzy search
 
 Type `ms` to open your workflow’s **Settings** and **Cache** folders:
 
-![Alfred show folders](Assets/ms.png)
+![Alfred show folders](assets/ms.png)
 
 * <kbd>↩</kbd> Open folder
 
