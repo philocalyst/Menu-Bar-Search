@@ -32,10 +32,11 @@ let package = Package(
           "-Xlinker", "-sectcreate",
           "-Xlinker", "__TEXT",
           "-Xlinker", "__info_plist",
-          "-Xlinker", "Sources/Info.plist",
+          "-Xlinker", "Info.plist",
         ])
       ]
     ),
+
     .testTarget(
       name: "menuTests",
       dependencies: ["menu"]
