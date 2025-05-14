@@ -10,6 +10,7 @@ This project uses [Semantic Versioning](https://semver.org/).
 ### Added
 - Support customisable search and settings keywords via `SEARCH_KEYWORD` and
   `SETTINGS_KEYWORD` workflow variables.
+- A single universal binary
 
 ### Changed
 - Update workflow icon to avoid visual conflicts with earlier versions.
