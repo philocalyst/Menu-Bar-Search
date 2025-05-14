@@ -21,7 +21,7 @@ Search and action macOS app menu-bar items via Alfred
 Type `mu` followed by your query to list menu-bar items of the frontmost application.  
 Supports fuzzy matching or exact prefixes.
 
-![Example Search](Assets/search.png)
+![Example Search](assets/search.png)
 
 Example: `mu cw` will match **Close Window** via fuzzy search
 
