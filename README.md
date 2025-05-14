@@ -25,8 +25,6 @@ Supports fuzzy matching or exact prefixes.
 
 Example: `mu cw` will match **Close Window** via fuzzy search
 
-![Alfred fuzzy search for cw](Assets/results.png)
-
 * <kbd>↩</kbd> Click the selected menu item
 
 ### Browse Folders (`ms`)

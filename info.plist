@@ -284,15 +284,13 @@ Supports fuzzy matching or exact prefixes.
 
 Example: `mu cw` will match **Close Window** via fuzzy search
 
-![Alfred fuzzy search for cw](Assets/results.png)
-
 * &lt;kbd&gt;↩&lt;/kbd&gt; Click the selected menu item
 
 ### Browse Folders (`ms`)
 
 Type `ms` to open your workflow’s **Settings** and **Cache** folders:
 
-![Alfred show folders](Workflow/images/about/ms.png)
+![Alfred show folders](Assets/ms.png)
 
 * &lt;kbd&gt;↩&lt;/kbd&gt; Open folder
 
